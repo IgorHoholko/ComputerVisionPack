@@ -1,0 +1,22 @@
+---
+Checks: '
+ -*,
+ modernize-*,
+ cppcoreguidelines-*,
+ readability-braces-around-statements:
+  - ShortStatementLines : 1
+ readability-*, 
+ portability-restrict-system-includes, 
+ performance-*, 
+ bugprone-*, 
+ misc-*, 
+ -misc-non-private-member-variables-in-classes, 
+ -cppcoreguidelines-non-private-member-variables-in-classes, 
+ -modernize-use-trailing-return-type, 
+ -modernize-use-nodiscard, 
+ -modernize-pass-by-value, 
+ '
+
+HeaderFilterRegex: '.*(src|lib).*(h|hpp|cpp)'
+
+FormatStyle: none
