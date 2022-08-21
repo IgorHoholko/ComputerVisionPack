@@ -18,7 +18,9 @@ link_directories(${OpenCV_INCLUDE_DIRS})
 
 set(SOURCE
         src/utils/creative/cartonify.h
-        src/tool/filter/fast_repeat_bilateral.h)
+        src/tool/filter/fast_repeat_bilateral.h
+        src/common/common.h
+        src/common/imgs_manipulation.h)
 
 set(INCLUDE
         src/)
