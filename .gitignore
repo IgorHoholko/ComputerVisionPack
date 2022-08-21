@@ -1,3 +1,10 @@
+.idea
+.vscode
+.cache
+
+build
+
+
 # Prerequisites
 *.d
 
