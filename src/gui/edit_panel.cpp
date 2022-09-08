@@ -87,19 +87,14 @@ namespace cvp::gui {
         connect(check_box, &QCheckBox::stateChanged, [this, key, check_box](bool value) { _params[key] = check_box->isChecked(); });
     }
 
+    void EditPanel::addComboBox(const std::string& key, const QList<QString>& items, const QString& desc){
+        auto* combo_box = new QComboBox(this);
+        combo_box->addItems(items);
 
-    int EditPanel::getSliderValue(const std::string& key) {
-        return getParam<int>(key);
-    }
-    double EditPanel::getDoubleSpinBoxValue(const std::string& key) {
-        return getParam<double>(key);
-    }
-    int EditPanel::getIntSpinBoxValue(const std::string& key) {
-        return getParam<int>(key);
-    }
-    bool EditPanel::getCheckBoxValue(const std::string& key) {
-        return getParam<bool>(key);
-    }
+        _form_layout->addRow(desc, combo_box);
 
+        _params[key] = combo_box->currentText();
+        connect(combo_box, &QComboBox::currentTextChanged, [this, key](QString txt) { _params[key] = txt; });
+    }
 
 }// namespace cvp::gui

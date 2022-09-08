@@ -7,6 +7,7 @@
 
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDialog>
 #include <QDoubleSpinBox>
 #include <QFormLayout>
@@ -28,22 +29,24 @@ namespace cvp::gui {
         explicit EditPanel(QWidget* parent = 0);
 
         QPushButton* addApplyButton();
-        //        QPushButton* getAppplyButton(){ return _apply_button; };
+        QPushButton* getAppplyButton() const { return _apply_button; };
 
         void addSlider(const std::string& key, Qt::Orientation orientation, int min, int max, const QString& desc);
         void addDoubleSpinBox(const std::string& key, double min, double max, double step, const QString& desc);
         void addIntSpinBox(const std::string& key, int min, int max, int step, const QString& desc);
         void addCheckBox(const std::string& key, bool checked, const QString& desc);
-        //
-        int    getSliderValue(const std::string& key);
-        double getDoubleSpinBoxValue(const std::string& key);
-        int    getIntSpinBoxValue(const std::string& key);
-        bool   getCheckBoxValue(const std::string& key);
+        void addComboBox(const std::string& key, const QList<QString>& items, const QString& desc);
 
         template<class Type>
-        Type getParam(const std::string& key) {
-            return std::any_cast<Type>(_params[key]);
+        Type getParam(const std::string& key) const {
+            return std::any_cast<Type>(_params.at(key));
         };
+
+        int     getSliderValue(const std::string& key) const { getParam<int>(key); }
+        double  getDoubleSpinBoxValue(const std::string& key) const { getParam<double>(key); }
+        int     getIntSpinBoxValue(const std::string& key) const { getParam<int>(key); }
+        bool    getCheckBoxValue(const std::string& key) const { getParam<bool>(key); }
+        QString getComboBoxValue(const std::string& key) const { getParam<QString>(key); }
 
         ParamsDict getCurrentParams() const { return _params; };
 
