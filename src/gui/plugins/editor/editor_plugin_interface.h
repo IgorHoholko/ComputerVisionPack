@@ -13,9 +13,9 @@
 class EditorPluginInterface {
 public:
     virtual ~EditorPluginInterface(){};
-    virtual QString              name()                                                                    = 0;
+    virtual QString              name()                                                                     = 0;
     virtual void                 edit(const cv::Mat& input, cv::Mat& output, const cvp::ParamsDict& params) = 0;
-    virtual cvp::gui::EditPanel* createEditPanel(QWidget* parent = 0)                                      = 0;
+    virtual cvp::gui::EditPanel* createEditPanel(QWidget* parent = 0)                                       = 0;
 };
 
 
