@@ -10,7 +10,7 @@
 #include <QPushButton>
 #include <QDoubleSpinBox>
 #include <QSlider>
-#include <QVBoxLayout>
+#include <QFormLayout>
 #include <QLabel>
 #include <QToolTip>
 
@@ -29,23 +29,22 @@ namespace cvp::gui {
 //        QPushButton* getAppplyButton(){ return _apply_button; };
 
         void addSlider(Qt::Orientation orientation, int min, int max, const QString& desc, const std::string& key);
-//        void addDoubleSpinBox(double min, double max, double step, const QString& desc, const std::string& key);
-//        void addIntSpinBox(int min, int max, int step, const QString& desc, const std::string& key);
+        void addDoubleSpinBox(double min, double max, double step, const QString& desc, const std::string& key);
+        void addIntSpinBox(int min, int max, int step, const QString& desc, const std::string& key);
 //
-//        int getSliderValue(const std::string& key);
-//        double getDoubleSpinBoxValue(const std::string& key);
-//        int getIntSpinBoxValue(const std::string& key);
+        int getSliderValue(const std::string& key);
+        double getDoubleSpinBoxValue(const std::string& key);
+        int getIntSpinBoxValue(const std::string& key);
 
         ParamsDict getCurrentParams() const { return _params; };
 
     private:
 
-        QGridLayout* _layout;
+        QVBoxLayout* _main_layout;
+        QFormLayout* _form_layout;
         QPushButton* _apply_button;
 
         ParamsDict _params;
-
-        int _current_layout_idx;
 
 
     };

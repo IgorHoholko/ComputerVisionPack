@@ -8,18 +8,24 @@
 namespace cvp::gui {
 
     EditPanel::EditPanel(QWidget* parent)
-        : QDialog(parent)
-    , _current_layout_idx(0){
+        : QDialog(parent){
 
         //        this->resize(300, 200);
-        _layout = new QGridLayout(this);
+        _main_layout = new QVBoxLayout(this);
+
+        _form_layout = new QFormLayout;
+        _form_layout->setLabelAlignment(Qt::AlignLeft);
+
+        _main_layout->addLayout(_form_layout);
+
         this->setMinimumWidth(400);
+        this->setMaximumWidth(400);
     }
 
 
     QPushButton* EditPanel::addApplyButton() {
         _apply_button = new QPushButton("Apply", this);
-        _layout->addWidget(_apply_button, _current_layout_idx, 1, 1, 3);
+        _main_layout->addWidget(_apply_button);
         return _apply_button;
     }
 
@@ -29,42 +35,47 @@ namespace cvp::gui {
 
         slider->setRange(min, max);
         slider->setValue(value);
+        slider->setMinimumWidth(250);
         connect(slider, &QSlider::sliderMoved, [&](int value) {QToolTip::showText(QCursor::pos(), QString("%1").arg(value), nullptr); } );
 
         auto* label_desc = new QLabel(desc );
-        label_desc->setStyleSheet("font-weight: bold");
-        auto* label_min = new QLabel( QString("Min: %1").arg(min) );
-        auto* label_max = new QLabel(QString("Max: %1").arg(max) );
 
-        _layout->addWidget(label_desc, _current_layout_idx++, 0, 1, 5);
-
-        _layout->addWidget(label_min, _current_layout_idx, 0, 1, 1);
-        _layout->addWidget(slider, _current_layout_idx, 1, 1, 3);
-        _layout->addWidget(label_max, _current_layout_idx, 4, 1, 1);
-
+        _form_layout->addRow(label_desc, slider);
 
         _params[key] = value;
         connect(slider, &QSlider::valueChanged, [this, key](int value) { _params[key] = value; });
-
-        _current_layout_idx++;
     }
 
-    //    void EditPanel::addDoubleSpinBox(double min, double max, double step, const QString& desc, const std::string& key) {
-    //    }
-    //
-    //    void EditPanel::addIntSpinBox(int min, int max, int step, const QString& desc, const std::string& key) {
-    //    }
+        void EditPanel::addDoubleSpinBox(double min, double max, double step, const QString& desc, const std::string& key) {
+            auto spin_box = new QDoubleSpinBox(this);
+            double  value  = min + (max - min) / 2.;
 
-    //
-    //    int EditPanel::getSliderValue(const std::string& key) {
-    //        return 0;
-    //    }
-    //    double EditPanel::getDoubleSpinBoxValue(const std::string& key) {
-    //        return 0;
-    //    }
-    //    int EditPanel::getIntSpinBoxValue(const std::string& key) {
-    //        return 0;
-    //    }
+            spin_box->setRange(min, max);
+            spin_box->setValue(value);
+            spin_box->setSingleStep(step);
+
+            auto* label_desc = new QLabel(desc );
+//            label_desc->setStyleSheet("font-weight: bold");
+
+            _form_layout->addRow(label_desc, spin_box);
+
+            _params[key] = value;
+            connect(spin_box, &QDoubleSpinBox::valueChanged, [this, key](int value) { _params[key] = value; });
+        }
+
+        void EditPanel::addIntSpinBox(int min, int max, int step, const QString& desc, const std::string& key) {
+        }
+
+
+        int EditPanel::getSliderValue(const std::string& key) {
+            return std::any_cast<int>(_params[key]);
+        }
+        double EditPanel::getDoubleSpinBoxValue(const std::string& key) {
+            return std::any_cast<double>(_params[key]);
+        }
+        int EditPanel::getIntSpinBoxValue(const std::string& key) {
+            return std::any_cast<int>(_params[key]);
+        }
 
 
 }// namespace cvp::gui
