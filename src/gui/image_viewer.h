@@ -3,6 +3,7 @@
 #ifndef COMPUTERVISIONPACK_IMAGE_VIEWER_H
 #define COMPUTERVISIONPACK_IMAGE_VIEWER_H
 
+#include "QPluginLoader"
 #include <QAction>
 #include <QApplication>
 #include <QFileDialog>
@@ -11,18 +12,17 @@
 #include <QGraphicsView>
 #include <QLabel>
 #include <QMainWindow>
+#include <QMap>
 #include <QMenuBar>
-#include <QStatusBar>
-#include <QToolBar>
 #include <QMessageBox>
 #include <QRegExp>
-#include <QMap>
-#include "QPluginLoader"
+#include <QStatusBar>
+#include <QToolBar>
 
 
-#include "gui/plugins/editor/editor_plugin_interface.h"
-#include "gui/edit_panel.h"
 #include "common/imgs_conversion.h"
+#include "gui/edit_panel.h"
+#include "gui/plugins/editor/editor_plugin_interface.h"
 
 
 namespace cvp::gui {
@@ -43,13 +43,17 @@ namespace cvp::gui {
 
         void _setNewPixmap(const QPixmap& pixmap);
 
-        EditPanel* _edit_panel;
-        EditorPluginInterface *_current_plugin;
+        int counter = 0;
+
+        EditPanel*             _edit_panel;
+        EditorPluginInterface* _current_plugin;
 
         QMap<QString, EditorPluginInterface*> _edit_plugins;
 
         QGraphicsPixmapItem* _current_image;
-        QString _current_image_path;
+        QPixmap              _edited_pixmap;
+        QPixmap              _original_pixmap;
+        QString              _current_image_path;
 
         // UI
         QMenu* _file_menu;
@@ -84,9 +88,10 @@ namespace cvp::gui {
         void _nextImage();
         void _pluginOpen();
         void _pluginPerform();
-
+        void _pluginClose();
+        void _moveCurrentImageToEdited();
     };
 
-}// namespace cvp
+}// namespace cvp::gui
 
 #endif//COMPUTERVISIONPACK_IMAGE_VIEWER_H

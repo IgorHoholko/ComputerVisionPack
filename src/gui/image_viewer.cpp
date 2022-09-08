@@ -39,7 +39,6 @@ namespace cvp::gui {
         _main_status_bar->addPermanentWidget(_main_status_label);
         _main_status_label->setText("Image Information will be here!");
 
-
         _createActions();
     }
 
@@ -85,11 +84,13 @@ namespace cvp::gui {
         QFileDialog dialog(this);
         dialog.setWindowTitle("Open Image");
         dialog.setFileMode(QFileDialog::ExistingFile);
-        dialog.setNameFilter(tr("Images (*.png *.bmp *.jpg)"));
+        dialog.setNameFilter(tr("Images (*.png *.bmp *.jpg *.jpeg)"));
         QStringList filePaths;
         if (dialog.exec()) {
             filePaths = dialog.selectedFiles();
             _showImage(filePaths.at(0));
+            _original_pixmap = _current_image->pixmap().copy();
+            _edited_pixmap = _current_image->pixmap().copy();
         }
     }
     void ImageViewer::_showImage(const QString& path) {
@@ -119,12 +120,12 @@ namespace cvp::gui {
         dialog.setWindowTitle("Save Image As ...");
         dialog.setFileMode(QFileDialog::AnyFile);
         dialog.setAcceptMode(QFileDialog::AcceptSave);
-        dialog.setNameFilter(tr("Images (*.png *.bmp *.jpg)"));
+        dialog.setNameFilter(tr("Images (*.png *.bmp *.jpg *.jpeg)"));
         QStringList fileNames;
         if (dialog.exec()) {
             fileNames = dialog.selectedFiles();
-            if (QRegExp(".+\\.(png|bmp|jpg)").exactMatch(fileNames.at(0))) {
-                _current_image->pixmap().save(fileNames.at(0));
+            if (QRegExp(".+\\.(png|bmp|jpg|jpeg)").exactMatch(fileNames.at(0))) {
+                _edited_pixmap.save(fileNames.at(0));
             } else {
                 QMessageBox::information(this, "Information", "Save error: bad format or filename.");
             }
@@ -138,7 +139,8 @@ namespace cvp::gui {
         QStringList nameFilters;
         nameFilters << "*.png"
                     << "*.bmp"
-                    << "*.jpg";
+                    << "*.jpg"
+                    << "*.jpeg";
         QStringList fileNames = dir.entryList(nameFilters, QDir::Files, QDir::Name);
         int         idx       = fileNames.indexOf(current.fileName());
         if (idx > 0) {
@@ -148,7 +150,6 @@ namespace cvp::gui {
         }
     }
 
-
     void ImageViewer::_nextImage() {
         QFileInfo current(_current_image_path);
         QDir      dir = current.absoluteDir();
@@ -156,7 +157,8 @@ namespace cvp::gui {
         QStringList nameFilters;
         nameFilters << "*.png"
                     << "*.bmp"
-                    << "*.jpg";
+                    << "*.jpg"
+                    << "*.jpeg";
         QStringList fileNames = dir.entryList(nameFilters, QDir::Files, QDir::Name);
         int         idx       = fileNames.indexOf(current.fileName());
         if (idx < fileNames.size() - 1) {
@@ -171,7 +173,7 @@ namespace cvp::gui {
         _zoom_in_action->setShortcuts(shortcuts);
 
         shortcuts.clear();
-        shortcuts << Qt::Key_Minus << Qt::Key_Underscore;
+        shortcuts << Qt::Key_Minus << Qt::Key_Underscore ;
         _zoom_out_action->setShortcuts(shortcuts);
 
         shortcuts.clear();
@@ -230,9 +232,12 @@ namespace cvp::gui {
         // Create Edit Panel to change params for editor (Optional for each plugin)
         _edit_panel = _current_plugin->createEditPanel(this);
 
+        connect(_edit_panel, &EditPanel::rejected, this, &ImageViewer::_pluginClose);
+
         if (_edit_panel != nullptr) {
-            QPushButton* apply_button = _edit_panel->addApplyButton();
-            QObject::connect(apply_button, &QPushButton::clicked, this, &ImageViewer::_pluginPerform);
+            _edit_panel->addButtons();
+            QObject::connect(_edit_panel->getAppplyButton(), &QPushButton::clicked, this, &ImageViewer::_pluginPerform);
+            QObject::connect(_edit_panel->getSaveButton(), &QPushButton::clicked, this, &ImageViewer::_moveCurrentImageToEdited);
             _edit_panel->show();
         } else {
             _pluginPerform();
@@ -240,10 +245,12 @@ namespace cvp::gui {
     }
 
     void ImageViewer::_pluginPerform() {
+        cv::Mat mat = qPixmapToCvMat(_edited_pixmap);
+        cv::Mat mat_edited;
 
-        cv::Mat mat = qPixmapToMat(_current_image->pixmap());
-        _current_plugin->edit(mat, mat, _edit_panel->getCurrentParams());
-        QPixmap pixmap_edited = matToQPixmap(mat);
+        _current_plugin->edit(mat, mat_edited, _edit_panel->getCurrentParams());
+
+        QPixmap pixmap_edited = cvMatToQPixmap(mat_edited);
 
         _setNewPixmap(pixmap_edited);
 
@@ -259,7 +266,16 @@ namespace cvp::gui {
         _current_image = _image_scene->addPixmap(pixmap);
 
         _image_scene->update();
-        _image_view->setSceneRect(pixmap.rect());
+        _image_view->setSceneRect(_image_scene->sceneRect());
+        _image_view->fitInView(_image_scene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
+    }
+
+    void ImageViewer::_pluginClose() {
+        _edit_panel = nullptr;
+    }
+
+    void ImageViewer::_moveCurrentImageToEdited() {
+        _edited_pixmap = _current_image->pixmap().copy();
     }
 
 }// namespace cvp::gui
