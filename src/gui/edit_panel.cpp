@@ -23,15 +23,18 @@ namespace cvp::gui {
     }
 
 
-    QPushButton* EditPanel::addApplyButton() {
+    void EditPanel::addButtons() {
         _apply_button = new QPushButton("Apply", this);
-        _main_layout->addWidget(_apply_button);
-        return _apply_button;
+        _save_button = new QPushButton("Save", this);
+
+        _form_layout->addRow(_apply_button, _save_button);
     }
 
-    void EditPanel::addSlider(const std::string& key, Qt::Orientation orientation, int min, int max, const QString& desc) {
+    void EditPanel::addSlider(const std::string& key, int min, int max, int value, const QString& desc, Qt::Orientation orientation) {
         auto* slider = new QSlider(orientation, this);
-        int   value  = min + (max - min) / 2;
+
+        int value_half = min + (max - min) / 2;
+        value          = (value >= min && value <= max) ? value : value_half;
 
         slider->setRange(min, max);
         slider->setValue(value);
@@ -46,9 +49,11 @@ namespace cvp::gui {
         connect(slider, &QSlider::valueChanged, [this, key](int value) { _params[key] = value; });
     }
 
-    void EditPanel::addDoubleSpinBox(const std::string& key, double min, double max, double step, const QString& desc) {
+    void EditPanel::addDoubleSpinBox(const std::string& key, double min, double max, double value, double step, const QString& desc) {
         auto   spin_box = new QDoubleSpinBox(this);
-        double value    = min + (max - min) / 2.;
+
+        double value_half = min + (max - min) / 2.;
+        value          = (value >= min && value <= max) ? value : value_half;
 
         spin_box->setRange(min, max);
         spin_box->setValue(value);
@@ -62,9 +67,11 @@ namespace cvp::gui {
         connect(spin_box, &QDoubleSpinBox::valueChanged, [this, key](int value) { _params[key] = value; });
     }
 
-    void EditPanel::addIntSpinBox(const std::string& key, int min, int max, int step, const QString& desc) {
-        auto   spin_box = new QSpinBox(this);
-        int value    = min + (max - min) / 2;
+    void EditPanel::addIntSpinBox(const std::string& key, int min, int max, int value, int step, const QString& desc) {
+        auto spin_box = new QSpinBox(this);
+
+        int value_half = min + (max - min) / 2;
+        value          = (value >= min && value <= max) ? value : value_half;
 
         spin_box->setRange(min, max);
         spin_box->setValue(value);
@@ -78,8 +85,10 @@ namespace cvp::gui {
         connect(spin_box, &QSpinBox::valueChanged, [this, key](int value) { _params[key] = value; });
     }
 
-    void EditPanel::addCheckBox(const std::string& key, bool checked, const QString& desc){
+    void EditPanel::addCheckBox(const std::string& key, bool checked, const QString& desc) {
         auto* check_box = new QCheckBox("Box Check", this);
+
+        check_box->setChecked(checked);
 
         _form_layout->addRow(check_box);
 
@@ -87,14 +96,15 @@ namespace cvp::gui {
         connect(check_box, &QCheckBox::stateChanged, [this, key, check_box](bool value) { _params[key] = check_box->isChecked(); });
     }
 
-    void EditPanel::addComboBox(const std::string& key, const QList<QString>& items, const QString& desc){
+    void EditPanel::addComboBox(const std::string& key, const QList<QString>& items, const QString& value, const QString& desc) {
         auto* combo_box = new QComboBox(this);
         combo_box->addItems(items);
+        combo_box->setCurrentText(value);
 
         _form_layout->addRow(desc, combo_box);
 
         _params[key] = combo_box->currentText();
-        connect(combo_box, &QComboBox::currentTextChanged, [this, key](QString txt) { _params[key] = txt; });
+        connect(combo_box, &QComboBox::currentTextChanged, [this, key](const QString& txt) { _params[key] = txt; });
     }
 
 }// namespace cvp::gui
