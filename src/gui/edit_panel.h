@@ -11,6 +11,8 @@
 #include <QDoubleSpinBox>
 #include <QSlider>
 #include <QVBoxLayout>
+#include <QLabel>
+#include <QToolTip>
 
 #include "common/common.h"
 
@@ -38,10 +40,12 @@ namespace cvp::gui {
 
     private:
 
-        QVBoxLayout* _layout;
+        QGridLayout* _layout;
         QPushButton* _apply_button;
 
         ParamsDict _params;
+
+        int _current_layout_idx;
 
 
     };
