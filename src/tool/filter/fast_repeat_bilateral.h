@@ -8,8 +8,7 @@
 #include "opencv2/opencv.hpp"
 
 
-namespace CVP::filter{
-
+namespace cvp::filter {
     /// Bilateral Filter.
     /// \param [in] inp input image in BGR format
     /// \param [out] dst output image in BGR format
@@ -23,8 +22,8 @@ namespace CVP::filter{
     ///                         that farther pixels will influence each other as long as their colors are close enough (see sigmaColor ).
     ///                         When d>0, it specifies the neighborhood size regardless of sigmaSpace. Otherwise, d is proportional to sigmaSpace
     /// \param [in] repetitions How many times apply the filter. Can lead to strong cartoon effect.
-    void fastRepeatBilateralFilter(const cv::Mat& inp, cv::Mat* dst,  size_t rescale_factor = 2,  int kernel_size = 9,  double sigma_color = 9.,
-                                   double sigma_space = 7., size_t repetitions = 7) {
+    inline void fastRepeatBilateralFilter(const cv::Mat& inp, cv::Mat* dst, size_t rescale_factor = 2, int kernel_size = 9,
+                                          double sigma_color = 9., double sigma_space = 7., size_t repetitions = 7) {
 
         using namespace cv;
 
@@ -36,16 +35,16 @@ namespace CVP::filter{
         resize(inp, small_img, small_size, 0, 0, INTER_LINEAR);
 
         // apply filter
-        Mat tmp         = Mat(small_size, CV_8UC3);
-        for (int i = 0; i < repetitions; i++) {
+        Mat tmp = Mat(small_size, CV_8UC3);
+        for (int i = 0; i < repetitions / 2; i++) {
             bilateralFilter(small_img, tmp, kernel_size, sigma_color, sigma_space);
             bilateralFilter(tmp, small_img, kernel_size, sigma_color, sigma_space);
         }
 
         // transform result to original size
-        resize(small_img, *dst, size, 0,0, INTER_LINEAR);
+        resize(small_img, *dst, size, 0, 0, INTER_LINEAR);
     }
-}
+}// namespace cvp::filter
 
 
 #endif//COMPUTERVISIONPACK_FAST_REPEAT_BILATERAL_H
