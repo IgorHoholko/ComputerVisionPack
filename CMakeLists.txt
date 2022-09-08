@@ -49,8 +49,15 @@ set(INCLUDE
 
 include_directories(${INCLUDE})
 
-add_library(erode_plugin SHARED src/gui/plugins/editor/erode_plugin.cpp src/gui/edit_panel.cpp)
+
+# PLUGINS
+add_library(erode_plugin SHARED src/gui/plugins/editor/erode_plugin.cpp
+        src/gui/edit_panel.cpp)
 target_link_libraries(erode_plugin PRIVATE Qt6::Widgets ${OpenCV_LIBS})
+
+add_library(cartonify_plugin SHARED src/gui/plugins/editor/cartonify_plugin.cpp
+        src/gui/edit_panel.cpp)
+target_link_libraries(cartonify_plugin PRIVATE Qt6::Widgets ${OpenCV_LIBS})
 
 add_executable(main lib/main.cpp ${SOURCE})
 target_link_libraries(main
