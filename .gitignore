@@ -1,6 +1,14 @@
 .idea
 .vscode
 .cache
+.DS_Store
+cmake-build-debug/
+cmake_install.cmake
+compile_commands.json
+cm
+
+
+
 
 build
 
