@@ -64,7 +64,7 @@ namespace cvp::gui {
         _form_layout->addRow(label_desc, spin_box);
 
         _params[key] = value;
-        connect(spin_box, &QDoubleSpinBox::valueChanged, [this, key](int value) { _params[key] = value; });
+        connect(spin_box, &QDoubleSpinBox::valueChanged, [this, key](double value) { _params[key] = value; });
     }
 
     void EditPanel::addIntSpinBox(const std::string& key, int min, int max, int value, int step, const QString& desc) {
