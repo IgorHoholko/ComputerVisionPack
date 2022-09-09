@@ -3,6 +3,8 @@
 #ifndef COMPUTERVISIONPACK_IMAGE_VIEWER_H
 #define COMPUTERVISIONPACK_IMAGE_VIEWER_H
 
+#include <stack>
+
 #include "QPluginLoader"
 #include <QAction>
 #include <QApplication>
@@ -43,6 +45,8 @@ namespace cvp::gui {
 
         void _setNewPixmap(const QPixmap& pixmap);
 
+        void _resetHistory();
+
         int counter = 0;
 
         EditPanel*             _edit_panel;
@@ -51,8 +55,9 @@ namespace cvp::gui {
         QMap<QString, EditorPluginInterface*> _edit_plugins;
 
         QGraphicsPixmapItem* _current_image;
-        QPixmap              _edited_pixmap;
-        QPixmap              _original_pixmap;
+        std::stack<QPixmap> _imgs_history;
+//        QPixmap              _edited_pixmap;
+//        QPixmap              _original_pixmap;
         QString              _current_image_path;
 
         // UI
@@ -78,6 +83,8 @@ namespace cvp::gui {
         QAction* _zoom_out_action;
         QAction* _previous_image_action;
         QAction* _next_image_action;
+        QAction* _cancel_action;
+        QAction* _reset_action;
 
     private slots:
         void _openImage();
@@ -89,7 +96,11 @@ namespace cvp::gui {
         void _pluginOpen();
         void _pluginPerform();
         void _pluginClose();
-        void _moveCurrentImageToEdited();
+
+        void _saveCurrentEditedImage();
+        void _resetImage();
+        void _cancelEdit();
+
     };
 
 }// namespace cvp::gui

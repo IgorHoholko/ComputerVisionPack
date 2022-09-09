@@ -12,10 +12,6 @@ namespace cvp::gui {
     }
 
     EditPanel* ErodePlugin::createEditPanel(QWidget* parent){
-        auto* edit_panel = new EditPanel(parent);
-        edit_panel->addSlider(Qt::Orientation::Horizontal, 0, 255, tr("My Desc"), "s");
-
-
-        return edit_panel;
+        return nullptr;
     }
 }// namespace cvp::gui

@@ -78,6 +78,16 @@ namespace cvp::gui {
         _view_tool_bar->addAction(_next_image_action);
         connect(_next_image_action, SIGNAL(triggered(bool)), this, SLOT(_nextImage()));
 
+        _cancel_action = new QAction("&Cancel", this);
+        _view_menu->addAction(_cancel_action);
+        _view_tool_bar->addAction(_cancel_action);
+        connect(_cancel_action, SIGNAL(triggered(bool)), this, SLOT(_cancelEdit()));
+
+        _reset_action = new QAction("&Reset", this);
+        _view_menu->addAction(_reset_action);
+        _view_tool_bar->addAction(_reset_action);
+        connect(_reset_action, SIGNAL(triggered(bool)), this, SLOT(_resetImage()));
+
         _setUpShortcuts();
     }
     void ImageViewer::_openImage() {
@@ -89,8 +99,6 @@ namespace cvp::gui {
         if (dialog.exec()) {
             filePaths = dialog.selectedFiles();
             _showImage(filePaths.at(0));
-            _original_pixmap = _current_image->pixmap().copy();
-            _edited_pixmap = _current_image->pixmap().copy();
         }
     }
     void ImageViewer::_showImage(const QString& path) {
@@ -98,6 +106,10 @@ namespace cvp::gui {
 
         QPixmap pixmap(path);
         _setNewPixmap(pixmap);
+
+        // Clear History Stack: remove all except 1 and then remove last 1 :)
+        _resetHistory();
+        _imgs_history.push( std::move(_current_image->pixmap().copy()) );
 
         QString status = QString("%1, %2x%3, %4 Bytes").arg(path).arg(pixmap.width()).arg(pixmap.height()).arg(QFile(path).size());
         _main_status_label->setText(status);
@@ -125,7 +137,7 @@ namespace cvp::gui {
         if (dialog.exec()) {
             fileNames = dialog.selectedFiles();
             if (QRegExp(".+\\.(png|bmp|jpg|jpeg)").exactMatch(fileNames.at(0))) {
-                _edited_pixmap.save(fileNames.at(0));
+                _imgs_history.top().save(fileNames.at(0));
             } else {
                 QMessageBox::information(this, "Information", "Save error: bad format or filename.");
             }
@@ -232,23 +244,28 @@ namespace cvp::gui {
         // Create Edit Panel to change params for editor (Optional for each plugin)
         _edit_panel = _current_plugin->createEditPanel(this);
 
-        connect(_edit_panel, &EditPanel::rejected, this, &ImageViewer::_pluginClose);
-
         if (_edit_panel != nullptr) {
             _edit_panel->addButtons();
-            QObject::connect(_edit_panel->getAppplyButton(), &QPushButton::clicked, this, &ImageViewer::_pluginPerform);
-            QObject::connect(_edit_panel->getSaveButton(), &QPushButton::clicked, this, &ImageViewer::_moveCurrentImageToEdited);
+            connect(_edit_panel, &EditPanel::rejected, this, &ImageViewer::_pluginClose);
+            connect(_edit_panel->getAppplyButton(), &QPushButton::clicked, this, &ImageViewer::_pluginPerform);
+            connect(_edit_panel->getSaveButton(), &QPushButton::clicked, this, &ImageViewer::_saveCurrentEditedImage);
             _edit_panel->show();
         } else {
             _pluginPerform();
+            _saveCurrentEditedImage();
         }
     }
 
     void ImageViewer::_pluginPerform() {
-        cv::Mat mat = qPixmapToCvMat(_edited_pixmap);
+        cv::Mat mat = qPixmapToCvMat(_imgs_history.top());
         cv::Mat mat_edited;
 
-        _current_plugin->edit(mat, mat_edited, _edit_panel->getCurrentParams());
+        if (_edit_panel != nullptr){
+            _current_plugin->edit(mat, mat_edited, _edit_panel->getCurrentParams());
+        }else{
+            _current_plugin->edit(mat, mat_edited, {});
+        }
+
 
         QPixmap pixmap_edited = cvMatToQPixmap(mat_edited);
 
@@ -274,8 +291,32 @@ namespace cvp::gui {
         _edit_panel = nullptr;
     }
 
-    void ImageViewer::_moveCurrentImageToEdited() {
-        _edited_pixmap = _current_image->pixmap().copy();
+    void ImageViewer::_saveCurrentEditedImage() {
+        _imgs_history.push( std::move(_current_image->pixmap().copy()) );
+    }
+
+    void ImageViewer::_resetImage() {
+        if (_imgs_history.size() == 1){
+            return ;
+        }
+        while (_imgs_history.size() != 1){
+            _imgs_history.pop();
+        }
+        _setNewPixmap(_imgs_history.top());
+    }
+
+    void ImageViewer::_cancelEdit() {
+        if (_imgs_history.size() == 1){
+            return ;
+        }
+        _imgs_history.pop();
+        _setNewPixmap(_imgs_history.top());
+    }
+
+    void ImageViewer::_resetHistory() {
+        while (_imgs_history.size()){
+            _imgs_history.pop();
+        }
     }
 
 }// namespace cvp::gui

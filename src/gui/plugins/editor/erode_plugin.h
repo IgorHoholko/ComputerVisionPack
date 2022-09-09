@@ -11,8 +11,6 @@
 
 namespace cvp::gui {
 
-
-
     class ErodePlugin: public QObject, public EditorPluginInterface
     {
         Q_OBJECT
