@@ -78,10 +78,15 @@ namespace cvp::gui {
         _view_tool_bar->addAction(_next_image_action);
         connect(_next_image_action, SIGNAL(triggered(bool)), this, SLOT(_nextImage()));
 
-        _cancel_action = new QAction("&Cancel", this);
-        _view_menu->addAction(_cancel_action);
-        _view_tool_bar->addAction(_cancel_action);
-        connect(_cancel_action, SIGNAL(triggered(bool)), this, SLOT(_cancelEdit()));
+        _back_edit_action = new QAction("&Back", this);
+        _view_menu->addAction(_back_edit_action);
+        _view_tool_bar->addAction(_back_edit_action);
+        connect(_back_edit_action, SIGNAL(triggered(bool)), this, SLOT(_backEdit()));
+
+        _next_edit_action = new QAction("&Forward", this);
+        _view_menu->addAction(_next_edit_action);
+        _view_tool_bar->addAction(_next_edit_action);
+        connect(_next_edit_action, SIGNAL(triggered(bool)), this, SLOT(_nextEdit()));
 
         _reset_action = new QAction("&Reset", this);
         _view_menu->addAction(_reset_action);
@@ -107,9 +112,9 @@ namespace cvp::gui {
         QPixmap pixmap(path);
         _setNewPixmap(pixmap);
 
-        // Clear History Stack: remove all except 1 and then remove last 1 :)
-        _resetHistory();
-        _imgs_history.push( std::move(_current_image->pixmap().copy()) );
+        _imgs_stack_past.clear();
+        _imgs_stack_next.clear();
+        _imgs_stack_past.push_back( std::move(_current_image->pixmap().copy()) );
 
         QString status = QString("%1, %2x%3, %4 Bytes").arg(path).arg(pixmap.width()).arg(pixmap.height()).arg(QFile(path).size());
         _main_status_label->setText(status);
@@ -137,7 +142,7 @@ namespace cvp::gui {
         if (dialog.exec()) {
             fileNames = dialog.selectedFiles();
             if (QRegExp(".+\\.(png|bmp|jpg|jpeg)").exactMatch(fileNames.at(0))) {
-                _imgs_history.top().save(fileNames.at(0));
+                _imgs_stack_past.back().save(fileNames.at(0));
             } else {
                 QMessageBox::information(this, "Information", "Save error: bad format or filename.");
             }
@@ -257,7 +262,7 @@ namespace cvp::gui {
     }
 
     void ImageViewer::_pluginPerform() {
-        cv::Mat mat = qPixmapToCvMat(_imgs_history.top());
+        cv::Mat mat = qPixmapToCvMat(_imgs_stack_past.back());
         cv::Mat mat_edited;
 
         if (_edit_panel != nullptr){
@@ -289,34 +294,41 @@ namespace cvp::gui {
 
     void ImageViewer::_pluginClose() {
         _edit_panel = nullptr;
+        _setNewPixmap(_imgs_stack_past.back());
     }
 
     void ImageViewer::_saveCurrentEditedImage() {
-        _imgs_history.push( std::move(_current_image->pixmap().copy()) );
+        _imgs_stack_past.push_back( std::move(_current_image->pixmap().copy()) );
+        _imgs_stack_next.clear();
     }
 
     void ImageViewer::_resetImage() {
-        if (_imgs_history.size() == 1){
+        if (_imgs_stack_past.size() == 1){
             return ;
         }
-        while (_imgs_history.size() != 1){
-            _imgs_history.pop();
+        while (_imgs_stack_past.size() != 1){
+            _imgs_stack_past.pop_back();
         }
-        _setNewPixmap(_imgs_history.top());
+        _imgs_stack_next.clear();
+        _setNewPixmap(_imgs_stack_past.back());
     }
 
-    void ImageViewer::_cancelEdit() {
-        if (_imgs_history.size() == 1){
+    void ImageViewer::_backEdit() {
+        if (_imgs_stack_past.size() == 1){
             return ;
         }
-        _imgs_history.pop();
-        _setNewPixmap(_imgs_history.top());
+        _imgs_stack_next.push_back(_imgs_stack_past.back());
+        _imgs_stack_past.pop_back();
+        _setNewPixmap(_imgs_stack_past.back());
     }
 
-    void ImageViewer::_resetHistory() {
-        while (_imgs_history.size()){
-            _imgs_history.pop();
+    void ImageViewer::_nextEdit() {
+        if (_imgs_stack_next.empty()){
+            return ;
         }
+        _imgs_stack_past.push_back(_imgs_stack_next.back());
+        _imgs_stack_next.pop_back();
+        _setNewPixmap(_imgs_stack_past.back());
     }
 
 }// namespace cvp::gui

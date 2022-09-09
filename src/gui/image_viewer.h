@@ -3,7 +3,7 @@
 #ifndef COMPUTERVISIONPACK_IMAGE_VIEWER_H
 #define COMPUTERVISIONPACK_IMAGE_VIEWER_H
 
-#include <stack>
+#include <vector>
 
 #include "QPluginLoader"
 #include <QAction>
@@ -55,10 +55,11 @@ namespace cvp::gui {
         QMap<QString, EditorPluginInterface*> _edit_plugins;
 
         QGraphicsPixmapItem* _current_image;
-        std::stack<QPixmap> _imgs_history;
-//        QPixmap              _edited_pixmap;
-//        QPixmap              _original_pixmap;
         QString              _current_image_path;
+
+        std::vector<QPixmap> _imgs_stack_past;
+        std::vector<QPixmap> _imgs_stack_next;
+
 
         // UI
         QMenu* _file_menu;
@@ -83,7 +84,8 @@ namespace cvp::gui {
         QAction* _zoom_out_action;
         QAction* _previous_image_action;
         QAction* _next_image_action;
-        QAction* _cancel_action;
+        QAction* _back_edit_action;
+        QAction* _next_edit_action;
         QAction* _reset_action;
 
     private slots:
@@ -99,7 +101,8 @@ namespace cvp::gui {
 
         void _saveCurrentEditedImage();
         void _resetImage();
-        void _cancelEdit();
+        void _backEdit();
+        void _nextEdit();
 
     };
 
