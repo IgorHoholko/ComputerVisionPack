@@ -23,6 +23,7 @@ namespace cvp::gui {
         edit_panel->addSlider("repetitions", CARTONIFY_REPETITIONS_MIN, CARTONIFY_REPETITIONS_MAX, CARTONIFY_REPETITIONS_DEFAULT, "Repetitions: ");
         edit_panel->addDoubleSpinBox("sigma_space", CARTONIFY_SIGMA_SPACE_MIN, CARTONIFY_SIGMA_SPACE_MAX, CARTONIFY_SIGMA_SPACE_DEFAULT, 0.25, "Sigma Space: ");
         edit_panel->addDoubleSpinBox("sigma_color", CARTONIFY_SIGMA_COLOR_MIN, CARTONIFY_SIGMA_COLOR_MAX, CARTONIFY_SIGMA_COLOR_DEFAULT, 0.25, "Sigma Color: ");
+        edit_panel->addRadioButtonsGroup("output_image_type", {"Cartoon", "Edges", "Raw Cartoon"}, 0, "Return Image");
 
         return edit_panel;
     }
@@ -33,14 +34,26 @@ namespace cvp::gui {
         CartoonSettings settings;
         settings.median_filter_size    = std::any_cast<int>(params.at("median_fs"));
         settings.laplacian_filter_size = std::any_cast<int>(params.at("laplacian_fs"));
-        settings.edges_threshold       = std::any_cast<int>(params.at("edges_t"));
+        settings.edges_threshold       = (float)std::any_cast<int>(params.at("edges_t"));
         settings.rescale_factor        = std::any_cast<int>(params.at("rescale"));
         settings.bilateral_kernel_size = std::any_cast<int>(params.at("bilateral_fs"));
         settings.repetitions           = std::any_cast<int>(params.at("repetitions"));
         settings.sigma_space           = std::any_cast<double>(params.at("sigma_space"));
         settings.sigma_color           = std::any_cast<double>(params.at("sigma_color"));
 
-        cartonify(input, &output, settings);
+        QString output_image_type =      std::any_cast<QString>(params.at("output_image_type"));
+
+        cv::Mat dst_edges;
+        cv::Mat dst_cartoon_raw;
+        cartonify(input, &output, settings, &dst_edges, &dst_cartoon_raw);
+
+        if (output_image_type == "Edges"){
+            output = dst_edges;
+        }else if (output_image_type == "Raw Cartoon"){
+            output = dst_cartoon_raw;
+        }
+
+
     }
 
 }// namespace cvp::gui
