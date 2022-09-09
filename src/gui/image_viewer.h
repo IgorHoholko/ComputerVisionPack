@@ -45,8 +45,6 @@ namespace cvp::gui {
 
         void _setNewPixmap(const QPixmap& pixmap);
 
-        void _resetHistory();
-
         int counter = 0;
 
         EditPanel*             _edit_panel;

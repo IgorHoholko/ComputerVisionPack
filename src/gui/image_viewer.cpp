@@ -26,7 +26,8 @@ namespace cvp::gui {
         // setup toolbar
         _file_tool_bar = addToolBar("File");
         _view_tool_bar = addToolBar("View");
-        _edit_tool_bar = addToolBar("Edit");
+        _edit_tool_bar = new QToolBar("Edit");
+        addToolBar(Qt::LeftToolBarArea, _edit_tool_bar);
 
         // main area for image display
         _image_scene = new QGraphicsScene(this);
@@ -200,6 +201,9 @@ namespace cvp::gui {
         shortcuts.clear();
         shortcuts << Qt::Key_Down << Qt::Key_Right;
         _next_image_action->setShortcuts(shortcuts);
+
+        _back_edit_action->setShortcuts({tr("Ctrl+Z")});
+        _next_edit_action->setShortcuts({tr("Ctrl+Shift+Z")});
     }
 
     void ImageViewer::_loadPlugins() {
@@ -250,11 +254,12 @@ namespace cvp::gui {
         _edit_panel = _current_plugin->createEditPanel(this);
 
         if (_edit_panel != nullptr) {
-            _edit_panel->addButtons();
+            _edit_panel->finalize();
             connect(_edit_panel, &EditPanel::rejected, this, &ImageViewer::_pluginClose);
             connect(_edit_panel->getAppplyButton(), &QPushButton::clicked, this, &ImageViewer::_pluginPerform);
             connect(_edit_panel->getSaveButton(), &QPushButton::clicked, this, &ImageViewer::_saveCurrentEditedImage);
             _edit_panel->show();
+            int a = 5;
         } else {
             _pluginPerform();
             _saveCurrentEditedImage();
@@ -270,7 +275,6 @@ namespace cvp::gui {
         }else{
             _current_plugin->edit(mat, mat_edited, {});
         }
-
 
         QPixmap pixmap_edited = cvMatToQPixmap(mat_edited);
 

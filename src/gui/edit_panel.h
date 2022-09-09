@@ -10,17 +10,27 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QDoubleSpinBox>
-#include <QFormLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QSlider>
 #include <QSpinBox>
 #include <QToolTip>
+#include <QButtonGroup>
+#include <QRadioButton>
+#include <QGroupBox>
+#include <QSpacerItem>
+#include <QVBoxLayout>
+#include <QFormLayout>
 
 #include "common/common.h"
 
 
 namespace cvp::gui {
+
+    constexpr int EDIT_PANEL_SLIDER_MIN_WIDTH = 200;
+    constexpr int EDIT_PANEL_GROUPBOX_MIN_WIDTH = 200;
+    constexpr int EDIT_PANEL_WINDOW_WIDTH = 400;
+
 
     class EditPanel : public QDialog {
         Q_OBJECT
@@ -28,7 +38,7 @@ namespace cvp::gui {
     public:
         explicit EditPanel(QWidget* parent = 0);
 
-        void addButtons();
+        void finalize();
         QPushButton* getAppplyButton() const { return _apply_button; };
         QPushButton* getSaveButton() const { return _save_button; };
 
@@ -37,6 +47,7 @@ namespace cvp::gui {
         void addIntSpinBox(const std::string& key, int min, int max, int value, int step, const QString& desc);
         void addCheckBox(const std::string& key, bool checked, const QString& desc);
         void addComboBox(const std::string& key, const QList<QString>& items, const QString& value, const QString& desc);
+        void addRadioButtonsGroup(const std::string& key, const QList<QString>& items, int checked_id, const QString& desc);
 
         template<class Type>
         Type getParam(const std::string& key) const {
@@ -52,8 +63,9 @@ namespace cvp::gui {
         ParamsDict getCurrentParams() const { return _params; };
 
     private:
-        QVBoxLayout* _main_layout;
+        QVBoxLayout* _layout;
         QFormLayout* _form_layout;
+        int _current_layout_row_idx;
 
         QPushButton* _apply_button;
         QPushButton* _save_button;
