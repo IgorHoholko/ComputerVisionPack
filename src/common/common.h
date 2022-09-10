@@ -8,18 +8,29 @@
 #include <any>
 #include "map"
 #include "string"
+#include "stack"
 
 namespace cvp{
 
 
     using ParamsDict = std::map<std::string, std::any>;
+    using Floats = std::vector<float>;
+
+    enum ModelBackend{
+        ONNX_RUNTIME
+    };
+
+    enum TensorFormatType{
+        NCHW,
+        NHWC
+    };
 
 
     inline void make_odd(int& val){
         if (val % 2 == 0){
             val++;
         }
-    }
+    };
 
 }
 
