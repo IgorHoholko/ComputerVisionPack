@@ -79,6 +79,10 @@ add_library(cartonify_plugin SHARED src/gui/plugins/editor/cartonify_plugin.cpp
         src/gui/edit_panel.cpp)
 target_link_libraries(cartonify_plugin PRIVATE Qt6::Widgets ${OpenCV_LIBS})
 
+add_library(faces_detection_plugin SHARED src/gui/plugins/editor/faces_detection_plugin.cpp
+        src/gui/edit_panel.cpp src/dl_models/models_factory.cpp ${SOURCE})
+target_link_libraries(faces_detection_plugin PRIVATE Qt6::Widgets ${OpenCV_LIBS} Qt6::Core5Compat onnxruntime)
+
 
 
 ## EXECUTABLE
