@@ -15,13 +15,13 @@ namespace cvp {
 
     class AnchorSSD : public BaseDetector {
     public:
-        AnchorSSD(const std::string & resource_path, const std::string & graph_name,
-                  ModelBackend backend, const DetectorSettings& settings);
+        AnchorSSD(const std::string& resource_path, const std::string& model_folder, ModelBackend backend,
+                  const std::string& graph_name, const DetectorSettings& settings);
 
         void init(size_t batch_size = 1) override;
 
     protected:
-        void postprocess(std::vector<Floats>& network_outputs, std::vector<BoxesItem>& outputs, size_t batch_size) override;
+        void postprocess(std::vector<Floats>& network_outputs, BoxesItem* outputs, size_t batch_size) override;
 
 
     private:

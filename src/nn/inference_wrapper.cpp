@@ -15,7 +15,7 @@ namespace cvp {
         switch (_backend) {
             case ModelBackend::ONNX_RUNTIME: {
                 this->_onnx_model = std::make_unique<OnnxRuntimeWrapper>();
-                std::filesystem::path graph_path = this->_resource_path / "onnx" / this->_graph_name;
+                std::filesystem::path graph_path = this->_models_folder / "onnx" / this->_graph_name;
                 this->_onnx_model->init(graph_path, batch_size);
                 break;
             }
@@ -23,10 +23,8 @@ namespace cvp {
         }
     }
 
-    std::vector<Floats> InferenceWrapper::run(const cv::Mat& img, TensorFormatType format, Floats mean, Floats std, const std::vector<const char*>& output_names) {
-        return this->run(std::vector<cv::Mat>({img}), format, mean, std, output_names);
-    }
-    std::vector<Floats> cvp::InferenceWrapper::run(const std::vector<cv::Mat>& imgs, TensorFormatType format, Floats mean, Floats std, const std::vector<const char*>& output_names) {
+
+    std::vector<Floats> InferenceWrapper::run(const cv::Mat* imgs, size_t size, TensorFormatType format, Floats mean, Floats std, const std::vector<const char*>& output_names) {
         std::vector<Floats> output;
 
         if (mean.empty() || std.empty()) {
@@ -42,7 +40,7 @@ namespace cvp {
             case ModelBackend::ONNX_RUNTIME: {
                 try {
                     size_t item_size  = imgs[0].cols * imgs[0].rows * imgs[0].channels();
-                    size_t batch_size = imgs.size();
+                    size_t batch_size = size; // TODO: fix
 
                     std::vector<float> input;
                     input.resize(batch_size * item_size);
@@ -51,9 +49,9 @@ namespace cvp {
                         this->_onnx_model->setOutputNames( output_names );
                     }
 
-                    preprocessImage(imgs, format, mean, std, input.data());
+                    preprocessImage(imgs, size, format, mean, std, input.data());
 
-                    auto& res = this->_onnx_model->run(input, batch_size);
+                    auto& res = this->_onnx_model->run(input.data(), size, batch_size);
                     for (auto& re : res) {
                         auto size = re.GetTensorTypeAndShapeInfo().GetElementCount();
                         output.emplace_back(re.GetTensorMutableData<float>(), re.GetTensorMutableData<float>() + size);

@@ -21,9 +21,9 @@ namespace cvp {
     public:
         OnnxRuntimeWrapper(bool use_gpu = false, int log_level = 4);
 
-        void init(const std::string& modelPath, int batchSize);
+        void init(const std::string& model_path, int batchSize);
 
-        std::vector<Ort::Value>& run(const std::vector<float>& imgs, size_t batchSize);
+        std::vector<Ort::Value>& run( float* imgs, size_t size, size_t batch_size);
 
         void setOutputNames(const std::vector<const char*>& new_names);
 

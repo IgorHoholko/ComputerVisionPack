@@ -8,7 +8,7 @@
 
 namespace cvp{
 
-    BaseDetectorUPtr ModelsFactory::getDetector(const std::string & graph_name, const std::string& resources_path, ModelBackend backend,
+    BaseDetector* ModelsFactory::getDetector(const std::string & graph_name, const std::string& resources_path, ModelBackend backend,
                                                float conf_threshold, bool smart_pad_resize, size_t smart_pad_resize_padding, bool allow_upscale) {
 
         if (graph_name == "retina_resnet50_sml_480x640") {
@@ -20,7 +20,7 @@ namespace cvp{
                                              smart_pad_resize_padding, allow_upscale, output_names};
             settings.prior_box_params = std::move( prior_box_params ) ;
 //            LOG(Debug, "\tModelsFactory::getDetector: " << "Loading " << graph_name << " detector with <conf_threshold> = " << conf_threshold);
-            return std::make_unique<AnchorSSD>(resources_path, graph_name, backend, settings);
+            return new AnchorSSD(resources_path, "graph/detection/face", backend, graph_name, settings);
         }
 
         std::stringstream msg;

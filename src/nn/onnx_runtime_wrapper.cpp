@@ -83,10 +83,10 @@ namespace cvp {
         }
     }
 
-    std::vector<Ort::Value>& OnnxRuntimeWrapper::run(const std::vector<float>& imgs, size_t batch_size) {
+    std::vector<Ort::Value>& OnnxRuntimeWrapper::run(float* imgs, size_t size, size_t batch_size) {
         std::vector<std::int64_t> shape = _input_dim;
         shape[0]                        = batch_size;
-        Ort::Value inputValue           = Ort::Value::CreateTensor<float>(_memory_info, (float*) imgs.data(), imgs.size(), shape.data(), shape.size());
+        Ort::Value inputValue           = Ort::Value::CreateTensor<float>(_memory_info, imgs, size, shape.data(), shape.size());
 
         _output_values.clear();
         for (size_t i = 0; i < _output_names.size(); i++) {

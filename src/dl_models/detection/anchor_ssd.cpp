@@ -7,16 +7,16 @@
 
 namespace cvp {
 
-    AnchorSSD::AnchorSSD(const std::string& resource_path, const std::string& graph_name,
-                         ModelBackend backend, const DetectorSettings& settings)
-        : BaseDetector(resource_path, graph_name, backend, settings) {}
+    AnchorSSD::AnchorSSD(const std::string& resource_path, const std::string& model_folder, ModelBackend backend,
+                         const std::string& graph_name, const DetectorSettings& settings)
+        : BaseDetector(resource_path, model_folder, backend, graph_name, settings) {}
 
     void AnchorSSD::init(size_t batch_size) {
         this->_priors = PriorBox(_settings.prior_box_params, _settings.input_height, _settings.input_width);
         BaseDetector::init(batch_size);
     }
 
-    void AnchorSSD::postprocess(std::vector<Floats>& network_outputs, std::vector<BoxesItem>& outputs, size_t batch_size) {
+    void AnchorSSD::postprocess(std::vector<Floats>& network_outputs, BoxesItem* outputs, size_t batch_size) {
         using namespace std;
         using namespace BoxUtils;
 
@@ -30,8 +30,6 @@ namespace cvp {
         float         cxcy[4];
         vector<float> xy(4);
         vector<float> landmark(_settings.num_landmarks);
-
-        outputs.resize(batch_size);
 
         for (size_t batch_idx = 0; batch_idx < batch_size; batch_idx++) {
 

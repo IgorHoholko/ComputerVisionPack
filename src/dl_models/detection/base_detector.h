@@ -49,16 +49,16 @@ namespace cvp {
     class BaseDetector : public BaseModel<cv::Mat, BoxesItem> {
 
     public:
-        BaseDetector(const std::string& resource_path, const std::string& graph_name, ModelBackend backend, const DetectorSettings& settings);
+        BaseDetector(const std::string& resource_path, const std::string& model_folder, ModelBackend backend, const std::string& graph_name, const DetectorSettings& settings);
 
         void init(size_t batch_size = 1) override;
 
-        void forward(const vector<cv::Mat>& input, vector<BoxesItem>& outputs) override;
+        void forward(const cv::Mat* input, size_t size, BoxesItem* outputs) override;
 
     protected:
-        cv::Mat preprocess(const cv::Mat& input) override;
+        cv::Mat preprocess(const cv::Mat* input) override;
 
-        void postprocess(vector<Floats>& network_outputs, vector<BoxesItem>& outputs, size_t batch_size = 1) override = 0;
+        void postprocess(vector<Floats>& network_outputs, BoxesItem* outputs, size_t batch_size = 1) override = 0;
 
 
     protected:

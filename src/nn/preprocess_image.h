@@ -13,8 +13,7 @@
 
 namespace cvp {
 
-
-    inline void preprocessImage(std::vector<cv::Mat> images, TensorFormatType format, Floats mean, Floats std, float* output) {
+    inline void preprocessImage(const cv::Mat* images, size_t size, TensorFormatType format, const Floats& mean, const Floats& std, float* output) {
         using namespace cv;
 
         int C = images[0].channels(),
@@ -37,8 +36,8 @@ namespace cvp {
                 throw std::invalid_argument("Not supported <TensorFormatType> passed!");
         }
 
-        for (int n = 0; n < images.size(); n++) {
-            const cv::Mat& I = images[n];
+        for (int n = 0; n < size; n++) {
+            const cv::Mat& I = *(images+n);
             // accept only char type matrices
             CV_Assert(I.depth() == CV_8U);
 
@@ -65,6 +64,12 @@ namespace cvp {
             }
         }
     }
+
+
+    inline void preprocessImage(const std::vector<cv::Mat>& images, TensorFormatType format, const Floats& mean, const Floats& std, float* output) {
+        preprocessImage(images.data(), images.size(), format, mean, std, output);
+    }
+
 
 }// namespace cvp
 
