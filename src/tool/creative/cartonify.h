@@ -5,7 +5,7 @@
 
 #include "opencv2/opencv.hpp"
 
-#include "tool/filter/fast_repeat_bilateral.h"
+#include "tool/image/filter/fast_repeat_bilateral.h"
 
 namespace cvp::creative {
 

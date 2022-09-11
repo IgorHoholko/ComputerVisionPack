@@ -22,7 +22,7 @@
 #include <QVBoxLayout>
 #include <QFormLayout>
 
-#include "common/common.h"
+#include "common.h"
 
 
 namespace cvp::gui {

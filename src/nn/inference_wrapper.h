@@ -12,9 +12,9 @@
 #include "opencv2/imgproc.hpp"
 #include <opencv2/dnn/dnn.hpp>
 
+#include "common.h"
 #include "nn/onnx_runtime_wrapper.h"
 #include "nn/preprocess_image.h"
-#include "common/common.h"
 
 namespace cvp {
 

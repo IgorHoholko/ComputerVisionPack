@@ -38,11 +38,12 @@ link_directories(${OpenCV_INCLUDE_DIRS})
 
 
 set(SOURCE
-        src/utils/creative/cartonify.h
-        src/tool/filter/fast_repeat_bilateral.h
-        src/common/common.h
-        src/common/imgs_conversion.h
-        src/common/imgs_manipulation.h
+        src/tool/creative/cartonify.h
+        src/tool/image/filter/fast_repeat_bilateral.h
+        src/common.h
+        src/tool/image/imgs_conversion.h
+        src/tool/image/imgs_manipulation.h
+        src/tool/image/smart_pad_resize.cpp
         src/gui/image_viewer.h
         src/gui/image_viewer.cpp
         src/gui/plugins/editor/editor_plugin_interface.h
@@ -52,9 +53,13 @@ set(SOURCE
         src/nn/inference_wrapper.cpp
         src/nn/preprocess_image.h
         src/dl_models/base_model.h
-        src/utils/detection/box_utils.h
-        src/utils/detection/prior_box.h
-        src/utils/detection/non_maximum_supression.h
+        src/dl_models/detection/base_detector.cpp
+        src/dl_models/detection/anchor_ssd.cpp
+        src/dl_models/models_factory.cpp
+        src/tool/detection/box_utils.h
+        src/tool/detection/prior_box.h
+        src/tool/detection/non_maximum_supression.h
+
         )
 
 set(INCLUDE

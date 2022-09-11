@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QString>
 
-#include "common/common.h"
+#include "common.h"
 #include "gui/edit_panel.h"
 
 

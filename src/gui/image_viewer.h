@@ -22,9 +22,9 @@
 #include <QToolBar>
 
 
-#include "common/imgs_conversion.h"
 #include "gui/edit_panel.h"
 #include "gui/plugins/editor/editor_plugin_interface.h"
+#include "tool/image/imgs_conversion.h"
 
 
 namespace cvp::gui {

@@ -9,7 +9,7 @@
 
 #include "opencv2/imgproc.hpp"
 
-#include "common/common.h"
+#include "common.h"
 
 namespace cvp {
 

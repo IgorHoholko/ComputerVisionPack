@@ -10,7 +10,7 @@
 #include <QtPlugin>
 
 #include "editor_plugin_interface.h"
-#include "utils/creative/cartonify.h"
+#include "tool/creative/cartonify.h"
 
 
 namespace cvp::gui {
