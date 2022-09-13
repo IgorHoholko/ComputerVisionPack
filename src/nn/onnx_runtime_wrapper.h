@@ -7,10 +7,14 @@
 
 #include <filesystem>
 #include <vector>
+#include <algorithm>
+#include <cassert>
 
 #include "onnxruntime/core/providers/cpu/cpu_provider_factory.h"
 #include "onnxruntime_c_api.h"
 #include "onnxruntime_cxx_api.h"
+
+#include "tool/geometry.h"
 
 
 namespace cvp {
@@ -23,7 +27,7 @@ namespace cvp {
 
         void init(const std::string& model_path, int batchSize);
 
-        std::vector<Ort::Value>& run( float* imgs, size_t size, size_t batch_size);
+        std::vector<Ort::Value>& run( float* imgs, size_t batch_size);
 
         void setOutputNames(const std::vector<const char*>& new_names);
 
