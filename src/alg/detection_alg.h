@@ -39,7 +39,7 @@ namespace cvp {
         bool               getSmartPadResize() const { return _smart_pad_resize; }
 
         void setConfThreshold(float t);
-        void getNmsIouThreshold(float t);
+        void setNmsIouThreshold(float t);
         void setSmartPadResize(bool allowed);
 
 

@@ -88,7 +88,7 @@ namespace cvp {
         _conf_threshold                = t;
         _detector->settings->threshold = t;
     }
-    void DetectionAlg::getNmsIouThreshold(float t) {
+    void DetectionAlg::setNmsIouThreshold(float t) {
         _nms_iou_threshold = t;
     }
     void DetectionAlg::setSmartPadResize(bool allowed) {
