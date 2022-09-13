@@ -16,7 +16,7 @@ namespace cvp {
     class AnchorSSD : public BaseDetector {
     public:
         AnchorSSD(const std::string& resource_path, const std::string& model_folder, ModelBackend backend,
-                  const std::string& graph_name, const DetectorSettings& settings);
+                  const std::string& graph_name, DetectorSettingsUPtr t_settings);
 
         void init(size_t batch_size = 1) override;
 

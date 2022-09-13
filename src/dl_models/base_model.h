@@ -20,6 +20,7 @@ namespace cvp {
     class BaseModel {
     public:
         BaseModel(const std::string& resource_path, const std::string& model_folder, ModelBackend backend, const std::string& graph_name);
+        virtual ~BaseModel() = default;
 
         virtual void init(size_t batch_size = 1);
 

@@ -10,8 +10,8 @@
 
 #include "common.h"
 #include "dl_models/base_model.h"
-#include "tool/image/smart_pad_resize.h"
 #include "tool/detection/prior_box.h"
+#include "tool/image/smart_pad_resize.h"
 
 
 namespace cvp {
@@ -20,24 +20,26 @@ namespace cvp {
 
 
     struct DetectorSettings {
-        size_t                   input_width;
-        size_t                   input_height;
-        float                    threshold;
-        vector<float>            mean;
-        vector<float>            std;
-        TensorFormatType         format;
-        cv::InterpolationFlags   interpolation            = cv::INTER_LINEAR;
-        bool                     smart_pad_resize         = false;
-        size_t                   smart_pad_resize_padding = 0;
-        bool                     allow_upscale            = true;
-        std::vector<const char*> output_names             = {};
+        const size_t                   input_width;
+        const size_t                   input_height;
+        float                          threshold;
+        const vector<float>            mean;
+        const vector<float>            std;
+        const TensorFormatType         format;
+        const cv::InterpolationFlags   interpolation            = cv::INTER_LINEAR;
+        bool                           smart_pad_resize         = false;
+        size_t                         smart_pad_resize_padding = 0;
+        bool                           allow_upscale            = true;
+        const std::vector<const char*> output_names             = {};
 
 
-        bool   landmarks_presented = true;
-        size_t num_landmarks       = 10;
+        const bool   landmarks_presented = true;
+        const size_t num_landmarks       = 10;
 
-        PriorBoxParams prior_box_params = {{}, {8, 16, 32}};
+        const PriorBoxParams prior_box_params = {{}, {8, 16, 32}};
     };
+
+    using DetectorSettingsUPtr = std::unique_ptr<DetectorSettings>;
 
     struct BoxesItem {
         vector<vector<float>> boxes;
@@ -49,20 +51,18 @@ namespace cvp {
     class BaseDetector : public BaseModel<cv::Mat, BoxesItem> {
 
     public:
-        BaseDetector(const std::string& resource_path, const std::string& model_folder, ModelBackend backend, const std::string& graph_name, const DetectorSettings& settings);
+        BaseDetector(const std::string& resource_path, const std::string& model_folder, ModelBackend backend, const std::string& graph_name, DetectorSettingsUPtr t_settings);
 
         void init(size_t batch_size = 1) override;
 
         void forward(const cv::Mat* input, size_t size, BoxesItem* outputs) override;
 
+        const DetectorSettingsUPtr settings;
+
     protected:
         cv::Mat preprocess(const cv::Mat* input) override;
 
         void postprocess(vector<Floats>& network_outputs, BoxesItem* outputs, size_t batch_size = 1) override = 0;
-
-
-    protected:
-        DetectorSettings _settings;
 
         vector<std::function<tuple<float, float>(float, float)>> _mapPointBackward;
 

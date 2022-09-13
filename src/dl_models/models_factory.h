@@ -5,6 +5,8 @@
 #ifndef COMPUTERVISIONPACK_MODELS_FACTORY_H
 #define COMPUTERVISIONPACK_MODELS_FACTORY_H
 
+#include <memory>
+
 #include "dl_models/detection/base_detector.h"
 
 
