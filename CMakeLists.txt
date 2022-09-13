@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -30,7 +30,7 @@ find_package(OpenCV 4.6.0 EXACT REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Core5Compat)
 
 
-qt_standard_project_setup()
+#qt_standard_project_setup()
 
 
 include_directories(${OpenCV_INCLUDE_DIRS})
@@ -58,8 +58,14 @@ set(SOURCE
         src/dl_models/models_factory.cpp
         src/tool/detection/box_utils.h
         src/tool/detection/prior_box.h
-        src/tool/detection/non_maximum_supression.h
+        src/tool/detection/non_maximum_supression.cpp
+        src/tool/geometry.h
+        src/tool/image/visualization/color_map.cpp
+        src/tool/image/visualization/boxes_drawer.cpp
 
+        src/entities/box.cpp
+
+        src/alg/detection_alg.cpp
         )
 
 set(INCLUDE
@@ -93,3 +99,10 @@ target_link_libraries(main
         onnxruntime
         )
 
+
+add_executable(faces_detect lib/faces_detect.cpp ${SOURCE})
+target_link_libraries(faces_detect
+        ${OpenCV_LIBS}
+        Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Core5Compat
+        onnxruntime
+        )
