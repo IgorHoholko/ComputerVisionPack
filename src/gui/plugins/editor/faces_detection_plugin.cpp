@@ -60,6 +60,8 @@ namespace cvp::gui {
             _detection_alg = std::make_unique<DetectionAlg>(_models_factory, graph_name, _resources_path, backend, threshold_conf, threshold_nms, smart_pad_resize);
             _detection_alg->init();
         }
+        _prev_backend_str = backend_str;
+        _prev_graph_name = graph_name;
 
         _detection_alg->setConfThreshold(threshold_conf);
         _detection_alg->setSmartPadResize(smart_pad_resize);

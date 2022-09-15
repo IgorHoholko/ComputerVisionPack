@@ -27,7 +27,7 @@ set(CMAKE_AUTOUIC ON)
 
 
 find_package(OpenCV 4.6.0 EXACT REQUIRED)
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets Core5Compat)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Core5Compat Multimedia)
 
 
 #qt_standard_project_setup()
@@ -46,6 +46,10 @@ set(SOURCE
         src/tool/image/smart_pad_resize.cpp
         src/gui/image_viewer.h
         src/gui/image_viewer.cpp
+        src/gui/capture_thread.cpp
+        src/gui/capture_thread.h
+        src/gui/video_viewer.h
+        src/gui/video_viewer.cpp
         src/gui/plugins/editor/editor_plugin_interface.h
         src/gui/edit_panel.h
         src/gui/edit_panel.cpp
@@ -87,15 +91,23 @@ target_link_libraries(cartonify_plugin PRIVATE Qt6::Widgets ${OpenCV_LIBS})
 
 add_library(faces_detection_plugin SHARED src/gui/plugins/editor/faces_detection_plugin.cpp
         src/gui/edit_panel.cpp src/dl_models/models_factory.cpp ${SOURCE})
-target_link_libraries(faces_detection_plugin PRIVATE Qt6::Widgets ${OpenCV_LIBS} Qt6::Core5Compat onnxruntime)
+target_link_libraries(faces_detection_plugin PRIVATE Qt6::Widgets ${OpenCV_LIBS} Qt6::Core5Compat Qt6::Multimedia onnxruntime)
+#FIXME: Split {SOURCE} to Qt coining and not
 
 
 
 ## EXECUTABLE
-add_executable(main lib/main.cpp ${SOURCE})
-target_link_libraries(main
+add_executable(main_image lib/main_image.cpp ${SOURCE})
+target_link_libraries(main_image
         ${OpenCV_LIBS}
-        Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Core5Compat
+        Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Core5Compat Qt6::Multimedia
+        onnxruntime
+        )
+
+add_executable(main_video lib/main_video.cpp ${SOURCE})
+target_link_libraries(main_video
+        ${OpenCV_LIBS}
+        Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Core5Compat Qt6::Multimedia
         onnxruntime
         )
 
@@ -103,6 +115,6 @@ target_link_libraries(main
 add_executable(faces_detect lib/faces_detect.cpp ${SOURCE})
 target_link_libraries(faces_detect
         ${OpenCV_LIBS}
-        Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Core5Compat
+        Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Core5Compat Qt6::Multimedia
         onnxruntime
         )
