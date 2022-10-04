@@ -20,6 +20,8 @@ set(PYTHON_EXECUTABLE /usr/bin/python3)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rd/onnxruntime/cmake onnxruntime)
 
+#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rd/opencv4x)
+
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -27,6 +29,9 @@ set(CMAKE_AUTOUIC ON)
 
 
 find_package(OpenCV 4.6.0 EXACT REQUIRED)
+
+
+
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Core5Compat Multimedia)
 
 
@@ -91,7 +96,8 @@ target_link_libraries(cartonify_plugin PRIVATE Qt6::Widgets ${OpenCV_LIBS})
 
 add_library(faces_detection_plugin SHARED src/gui/plugins/editor/faces_detection_plugin.cpp
         src/gui/edit_panel.cpp src/dl_models/models_factory.cpp ${SOURCE})
-target_link_libraries(faces_detection_plugin PRIVATE Qt6::Widgets ${OpenCV_LIBS} Qt6::Core5Compat Qt6::Multimedia onnxruntime)
+target_link_libraries(faces_detection_plugin PRIVATE Qt6::Widgets ${OpenCV_LIBS} Qt6::Core5Compat Qt6::Multimedia
+        onnxruntime)
 #FIXME: Split {SOURCE} to Qt coining and not
 
 

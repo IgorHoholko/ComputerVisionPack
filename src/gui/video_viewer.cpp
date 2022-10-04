@@ -21,9 +21,9 @@ namespace cvp::gui {
         // setup menubar
         _file_menu = menuBar()->addMenu("&File");
 
+        QGridLayout* main_layout = new QGridLayout();
 
         // Create Video Area
-        QGridLayout* main_layout = new QGridLayout();
         _image_scene             = new QGraphicsScene(this);
         _image_view              = new QGraphicsView(_image_scene);
         main_layout->addWidget(_image_view, 0, 0, 12, 1);
@@ -32,18 +32,11 @@ namespace cvp::gui {
         QGridLayout* tools_layout = new QGridLayout();
         main_layout->addLayout(tools_layout, 12, 0, 1, 1);
 
-        _monitor_check_box = new QCheckBox(this);
-        _monitor_check_box->setText("Monitor On/Off");
-        tools_layout->addWidget(_monitor_check_box, 0, 0);
-
         _record_button = new QPushButton(this);
         _record_button->setText("Record");
         tools_layout->addWidget(_record_button, 0, 1, Qt::AlignHCenter);
         tools_layout->addWidget(new QLabel(this), 0, 2);// empty placeholder
-
-        // Create List of saved videos
-        _saved_list = new QListView(this);
-        main_layout->addWidget(_saved_list, 13, 0, 4, 1);
+        connect(_record_button, &QPushButton::clicked, this, &VideoViewer::_recordingStartStop);
 
         // Setup main window layout
         QWidget* widget = new QWidget();
@@ -56,18 +49,21 @@ namespace cvp::gui {
         _main_status_bar->addPermanentWidget(_main_status_label);
         _main_status_label->setText("Gazer is Ready");
 
+
         _createActions();
+
+        _chooseSaveFolder();
     }
 
     void VideoViewer::_createActions() {
 
-        _camera_info_action = new QAction("Show Camera Info", this);
-        _file_menu->addAction(_camera_info_action);
-        connect(_camera_info_action, SIGNAL(triggered(bool)), this, SLOT(_showCameraInfo()));
-
         _open_camera_action = new QAction("Open Camera", this);
         _file_menu->addAction(_open_camera_action);
         connect(_open_camera_action, SIGNAL(triggered(bool)), this, SLOT(_openCamera()));
+
+        _open_video_action = new QAction("Open Video", this);
+        _file_menu->addAction(_open_video_action);
+        connect(_open_video_action, SIGNAL(triggered(bool)), this, SLOT(_openVideo()));
 
         _setUpShortcuts();
     }
@@ -87,38 +83,34 @@ namespace cvp::gui {
         _image_view->setSceneRect(_image_scene->sceneRect());
         _image_view->fitInView(_image_scene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
     }
-    void VideoViewer::_showCameraInfo() {
-
-        const QList<QCameraDevice> cameras = QMediaDevices::videoInputs();
-        QString                    info    = QString("Available Cameras: \n");
-        for (const QCameraDevice& cameraDevice : cameras) {
-            info += " - " + cameraDevice.description() + ": ";
-            //            if (cameraDevice.description() == "mycamera")
-            //                camera = new QCamera(cameraDevice);
-        }
-
-        //        QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
-
-
-        //        foreach (const QCameraInfo &cameraInfo, cameras) {
-        //            info += " - " + cameraInfo.deviceName() + ": ";
-        //            info += cameraInfo.description() + "\n";
-        //        }
-        QMessageBox::information(this, "Cameras", info);
-    }
 
     void VideoViewer::_openCamera() {
         if (_capturer != nullptr) {
             // if a thread is already running, stop it
             _capturer->setRunning(false);
-            disconnect(_capturer, &CaptureThread::frameCaptured, this, &VideoViewer::_updateFrame);
+            disconnect(_capturer, &CaptureThread::_frameCaptured, this, &VideoViewer::_updateFrame);
             connect(_capturer, &CaptureThread::finished, _capturer, &CaptureThread::deleteLater);
         }
         int camera_id = 0;
-        _capturer     = new CaptureThread(camera_id, _data_lock);
-        connect(_capturer, &CaptureThread::frameCaptured, this, &VideoViewer::_updateFrame);
+        _capturer     = new CaptureThread(camera_id, _data_lock, _save_path);
+        connect(_capturer, &CaptureThread::_frameCaptured, this, &VideoViewer::_updateFrame);
         _capturer->start();
         _main_status_label->setText(QString("Capturing Camera %1").arg(camera_id));
+    }
+
+    void VideoViewer::_openVideo() {
+        QFileDialog dialog(this);
+        dialog.setWindowTitle("Open Video");
+        dialog.setFileMode(QFileDialog::ExistingFile);
+        dialog.setNameFilter(tr("Images (*.avi *.mp4)"));
+        QStringList filePaths;
+        if (dialog.exec()) {
+            filePaths = dialog.selectedFiles();
+            _capturer     = new CaptureThread(filePaths.at(0).toStdString(), _data_lock, _save_path);
+            connect(_capturer, &CaptureThread::_frameCaptured, this, &VideoViewer::_updateFrame);
+            _capturer->start();
+            _main_status_label->setText(QString("Capturing Video %1").arg(filePaths.at(0)));
+        }
     }
 
     void VideoViewer::_updateFrame(cv::Mat* mat) {
@@ -129,5 +121,20 @@ namespace cvp::gui {
         _setNewPixmap(cvMatToQPixmap(_current_frame));
     }
 
+    void VideoViewer::_chooseSaveFolder() {
+        if (!_save_path.empty()) return ;
+        _save_path = QFileDialog::getExistingDirectory(this, tr("Choose Save Folder")).toStdString();
+    }
+
+    void VideoViewer::_recordingStartStop() {
+        QString text = _record_button->text();
+        if(text == "Record" && _capturer) {
+            _capturer->setVideoSavingStatus(VideoSavingStatus::STARTING);
+            _record_button->setText("Stop Recording");
+        } else if(text == "Stop Recording" && _capturer != nullptr) {
+            _capturer->setVideoSavingStatus(VideoSavingStatus::STOPPING);
+            _record_button->setText("Record");
+        }
+    }
 
 }// namespace cvp::gui

@@ -11,6 +11,7 @@
 #include "QPluginLoader"
 #include <QAction>
 #include <QApplication>
+#include <QCheckBox>
 #include <QFileDialog>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
@@ -22,14 +23,12 @@
 #include <QMap>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QRegExp>
+#include <QStandardItemModel>
 #include <QStatusBar>
 #include <QToolBar>
-#include <QCheckBox>
-#include <QPushButton>
-#include <QtMultimedia/QCamera>
-#include <QtMultimedia/QMediaDevices>
-#include <QtMultimedia/QMediaDevices>
+
 
 #include "capture_thread.h"
 #include "tool/image/imgs_conversion.h"
@@ -46,10 +45,11 @@ namespace cvp::gui {
     private:
         void _initUI();
         void _createActions();
-
         void _setUpShortcuts();
 
         void _setNewPixmap(const QPixmap& pixmap);
+
+        void _chooseSaveFolder();
 
 
         // UI
@@ -58,31 +58,30 @@ namespace cvp::gui {
         QGraphicsScene* _image_scene;
         QGraphicsView*  _image_view;
 
-        QCheckBox*   _monitor_check_box;
         QPushButton* _record_button;
-
-        QListView* _saved_list;
 
         QStatusBar* _main_status_bar;
         QLabel*     _main_status_label;
 
         // Actions
-        QAction* _camera_info_action;
         QAction* _open_camera_action;
+        QAction* _open_video_action;
         QAction* _exit_action;
 
         // Core
         cv::Mat _current_frame;
 
         // for capture thread
-        QMutex *_data_lock;
-        CaptureThread *_capturer;
+        QMutex*        _data_lock;
+        CaptureThread* _capturer;
+        std::string    _save_path;
 
 
     private slots:
-        void _showCameraInfo();
         void _openCamera();
+        void _openVideo();
         void _updateFrame(cv::Mat*);
+        void _recordingStartStop();
     };
 
 }// namespace cvp::gui

@@ -259,7 +259,6 @@ namespace cvp::gui {
             connect(_edit_panel->getAppplyButton(), &QPushButton::clicked, this, &ImageViewer::_pluginPerform);
             connect(_edit_panel->getSaveButton(), &QPushButton::clicked, this, &ImageViewer::_saveCurrentEditedImage);
             _edit_panel->show();
-            int a = 5;
         } else {
             _pluginPerform();
             _saveCurrentEditedImage();
